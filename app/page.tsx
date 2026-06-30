@@ -1,34 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
 
 export default function Page() {
-  // MODE
   const [mode, setMode] = useState("sticker");
 
-  // CORE INPUTS
   const [subject, setSubject] = useState("");
-  const [styleType, setStyleType] = useState("die-cut vinyl sticker");
+  const [style, setStyle] = useState("Cartoon");
   const [character, setCharacter] = useState("Cartoon");
   const [aesthetic, setAesthetic] = useState("cute");
   const [extras, setExtras] = useState("");
 
-  // SAAS FEATURES
   const [ageGroup, setAgeGroup] = useState("all ages");
-  const [bookSize, setBookSize] = useState("A4");
   const [packSize, setPackSize] = useState(20);
-  const [includeCover, setIncludeCover] = useState(true);
 
-  // IMAGE INPUT
-  const [file, setFile] = useState<File | null>(null);
-
-  // OUTPUT
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // FILE → BASE64
+  const [file, setFile] = useState<File | null>(null);
+
+  // Convert image to base64 (safe for API)
   function fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -38,106 +29,94 @@ export default function Page() {
     });
   }
 
-  // GENERATE
   async function generate() {
     setLoading(true);
 
-    let refImage = "";
+    let referenceImage = "";
 
     if (file) {
-      refImage = await fileToBase64(file);
+      referenceImage = await fileToBase64(file);
     }
 
-    let finalPrompt = "";
+    let prompt = "";
 
-    // 🎨 STICKER MODE
     if (mode === "sticker") {
-      finalPrompt = `
-You are a professional sticker designer.
-
-Create ONE high-quality sticker.
+      prompt = `
+Create ONE high quality sticker.
 
 Subject: ${subject}
-Style: ${styleType}
+Style: ${style}
 Character: ${character}
 Aesthetic: ${aesthetic}
-Age Group: ${ageGroup}
+Age group: ${ageGroup}
 Extras: ${extras}
 
 Rules:
-- clean outline
 - centered composition
-- sticker-ready design
-- white/transparent background
+- clean outline
+- sticker style
+- transparent background look
 - print-ready quality
 
-Reference: ${refImage}
+Reference image: ${referenceImage}
 `;
     }
 
-    // 📘 STICKER BOOK MODE
-    if (mode === "book") {
-      finalPrompt = `
-You are a professional sticker book designer.
-
-Create a COMPLETE sticker book layout.
-
-Size: ${bookSize}
-Include Cover: ${includeCover ? "Yes" : "No"}
-
-Theme: ${subject}
-Style: ${styleType}
-Character: ${character}
-Aesthetic: ${aesthetic}
-Age Group: ${ageGroup}
-Extras: ${extras}
-
-Rules:
-- cover page included if enabled
-- clean grid layout
-- printable A4 design
-- organized sticker sheets
-- high commercial quality
-
-Reference: ${refImage}
-`;
-    }
-
-    // 📦 STICKER PACK MODE
     if (mode === "pack") {
-      finalPrompt = `
-You are an Etsy sticker pack creator.
-
-Generate ${packSize} UNIQUE stickers.
+      prompt = `
+Create a STICKER PACK of ${packSize} stickers.
 
 Theme: ${subject}
-Style: ${styleType}
+Style: ${style}
 Character: ${character}
 Aesthetic: ${aesthetic}
-Age Group: ${ageGroup}
+Age group: ${ageGroup}
 
 Rules:
-- each sticker must be different
-- consistent theme
-- clean outline
-- printable PNG style
+- each sticker must be unique
+- same visual theme
+- clean printable design
 - Etsy-ready quality
 
-Reference: ${refImage}
+Reference image: ${referenceImage}
+`;
+    }
+
+    if (mode === "book") {
+      prompt = `
+Create a FULL STICKER BOOK layout.
+
+Theme: ${subject}
+Style: ${style}
+Character: ${character}
+Aesthetic: ${aesthetic}
+Age group: ${ageGroup}
+
+Rules:
+- cover page included
+- structured pages
+- clean sticker grid layout
+- printable A4 quality
+- professional children’s book design
+
+Reference image: ${referenceImage}
 `;
     }
 
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          prompt: finalPrompt,
+          prompt,
           style: "sticker",
         }),
       });
 
       const data = await res.json();
+
       setImages(data.images || []);
     } catch (err) {
       console.error(err);
@@ -147,78 +126,48 @@ Reference: ${refImage}
     setLoading(false);
   }
 
-  // 📦 ZIP DOWNLOAD
-  async function downloadZip() {
-    const zip = new JSZip();
-
-    for (let i = 0; i < images.length; i++) {
-      const res = await fetch(images[i]);
-      const blob = await res.blob();
-      zip.file(`sticker-${i + 1}.png`, blob);
-    }
-
-    const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, `${subject || "stickers"}-pack.zip`);
-  }
-
-  // 🧾 ETSY HELPERS
-  function etsyTitle() {
-    return `${subject} Sticker Pack | Cute ${character} ${aesthetic} Stickers | Printable Digital Download`;
-  }
-
-  function etsyDescription() {
-    return `
-DIGITAL STICKER PACK
-
-Theme: ${subject}
-Style: ${styleType}
-Pack Size: ${images.length}
-
-INCLUDES:
-- PNG stickers
-- Transparent style
-- Instant download ZIP
-
-Perfect for journals, planners, laptops.
-
-Digital product only.
-`;
-  }
-
   return (
-    <main style={{ padding: 40, textAlign: "center", fontFamily: "Arial" }}>
-      <h1>💰 EchoMeow AI SaaS Sticker Tool</h1>
+    <main style={{ padding: 30, fontFamily: "Arial", textAlign: "center" }}>
+      <h1>🎨 EchoMeow AI SaaS Tool</h1>
 
       {/* MODE */}
       <select value={mode} onChange={(e) => setMode(e.target.value)}>
-        <option value="sticker">🎨 Sticker</option>
-        <option value="book">📘 Sticker Book</option>
-        <option value="pack">📦 Sticker Pack (Etsy)</option>
+        <option value="sticker">Sticker</option>
+        <option value="pack">Sticker Pack</option>
+        <option value="book">Sticker Book</option>
       </select>
 
       <br /><br />
 
-      {/* INPUTS */}
+      {/* SUBJECT */}
       <input
-        placeholder="Subject"
+        placeholder="Subject (e.g. cute cat)"
         value={subject}
         onChange={(e) => setSubject(e.target.value)}
       />
 
       <br /><br />
 
-      <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+      {/* IMAGE UPLOAD */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      />
 
       <br /><br />
 
-      <select value={styleType} onChange={(e) => setStyleType(e.target.value)}>
-        <option>die-cut vinyl sticker</option>
-        <option>watercolor sticker</option>
-        <option>holographic sticker</option>
+      {/* STYLE */}
+      <select value={style} onChange={(e) => setStyle(e.target.value)}>
+        <option>Cartoon</option>
+        <option>Kawaii</option>
+        <option>Chibi</option>
+        <option>Minimal</option>
       </select>
 
       <br /><br />
 
+      {/* CHARACTER */}
       <select value={character} onChange={(e) => setCharacter(e.target.value)}>
         <option>Cartoon</option>
         <option>Anime</option>
@@ -227,15 +176,17 @@ Digital product only.
 
       <br /><br />
 
+      {/* AESTHETIC */}
       <select value={aesthetic} onChange={(e) => setAesthetic(e.target.value)}>
         <option>cute</option>
         <option>kawaii</option>
-        <option>minimal</option>
         <option>cottagecore</option>
+        <option>minimal</option>
       </select>
 
       <br /><br />
 
+      {/* AGE GROUP */}
       <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)}>
         <option>kids</option>
         <option>teenagers</option>
@@ -245,42 +196,25 @@ Digital product only.
 
       <br /><br />
 
+      {/* PACK SIZE */}
       {mode === "pack" && (
         <>
-          <select value={packSize} onChange={(e) => setPackSize(Number(e.target.value))}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
+          <select
+            value={packSize}
+            onChange={(e) => setPackSize(Number(e.target.value))}
+          >
+            <option value={10}>10 stickers</option>
+            <option value={20}>20 stickers</option>
+            <option value={50}>50 stickers</option>
           </select>
-          <br /><br />
-        </>
-      )}
-
-      {mode === "book" && (
-        <>
-          <select value={bookSize} onChange={(e) => setBookSize(e.target.value)}>
-            <option>A4</option>
-            <option>A5</option>
-            <option>US Letter</option>
-          </select>
-
-          <br /><br />
-
-          <label>
-            <input
-              type="checkbox"
-              checked={includeCover}
-              onChange={(e) => setIncludeCover(e.target.checked)}
-            />
-            Include Cover Page
-          </label>
 
           <br /><br />
         </>
       )}
 
+      {/* EXTRAS */}
       <input
-        placeholder="Extras"
+        placeholder="Extras (sparkles, hearts, etc)"
         value={extras}
         onChange={(e) => setExtras(e.target.value)}
       />
@@ -292,34 +226,18 @@ Digital product only.
         {loading ? "Generating..." : "Generate"}
       </button>
 
-      {/* DOWNLOAD ZIP */}
-      {images.length > 0 && (
-        <button onClick={downloadZip} style={{ marginLeft: 10 }}>
-          📦 Download ZIP
-        </button>
-      )}
-
       {/* OUTPUT */}
       <div style={{ marginTop: 20 }}>
         {images.map((img, i) => (
-          <div key={i}>
+          <div key={i} style={{ marginBottom: 10 }}>
             <img src={img} width={180} />
             <br />
-            <a href={img} download target="_blank">
+            <a href={img} target="_blank">
               Download
             </a>
           </div>
         ))}
       </div>
-
-      {/* ETSY PREVIEW */}
-      {images.length > 0 && (
-        <div style={{ marginTop: 40, textAlign: "left" }}>
-          <h3>🧾 Etsy Preview</h3>
-          <p><b>Title:</b> {etsyTitle()}</p>
-          <pre>{etsyDescription()}</pre>
-        </div>
-      )}
     </main>
   );
 }
