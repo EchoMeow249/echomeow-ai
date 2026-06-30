@@ -70,3 +70,8 @@ export default function Page() {
     </main>
   );
 }
+const [subject, setSubject] = useState("");
+const [styleType, setStyleType] = useState("die-cut vinyl sticker");
+const [character, setCharacter] = useState("Cartoon");
+const [aesthetic, setAesthetic] = useState("cute");
+const [extras, setExtras] = useState("with sparkles");
