@@ -75,3 +75,11 @@ const [styleType, setStyleType] = useState("die-cut vinyl sticker");
 const [character, setCharacter] = useState("Cartoon");
 const [aesthetic, setAesthetic] = useState("cute");
 const [extras, setExtras] = useState("with sparkles");
+const [loading, setLoading] = useState(false);
+async function generate()
+return (
+  <main>
+    Title
+Inputs + dropdowns
+Button
+Images
