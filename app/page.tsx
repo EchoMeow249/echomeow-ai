@@ -4,6 +4,30 @@ import { useState } from "react";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
+  const [style, setStyle] = useState("Kawaii");
+  const [images, setImages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  async function generate() {
+    if (!prompt) return;
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, style }),
+      });
+
+      const data = await res.json();
+      setImages(data.images);
+    } catch (err) {
+      console.error("Error generating:", err);
+    }
+
+    setLoading(false);
+  }
 
   return (
     <main
@@ -35,7 +59,11 @@ export default function Home() {
 
       {/* STYLE */}
       <div style={{ marginTop: "15px" }}>
-        <select style={{ width: "80%", padding: "12px" }}>
+        <select
+          value={style}
+          onChange={(e) => setStyle(e.target.value)}
+          style={{ width: "80%", padding: "12px" }}
+        >
           <option>Kawaii</option>
           <option>Cartoon</option>
           <option>Chibi</option>
@@ -46,6 +74,8 @@ export default function Home() {
 
       {/* BUTTON */}
       <button
+        onClick={generate}
+        disabled={loading}
         style={{
           marginTop: "20px",
           padding: "12px 25px",
@@ -55,12 +85,28 @@ export default function Home() {
           cursor: "pointer",
         }}
       >
-        Generate Stickers
+        {loading ? "Generating..." : "Generate Stickers"}
       </button>
 
-      {/* OUTPUT AREA */}
-      <div style={{ marginTop: "40px" }}>
-        <p>🧸 Generated stickers will appear here</p>
+      {/* OUTPUT */}
+      <div
+        style={{
+          marginTop: "40px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+          flexWrap: "wrap",
+        }}
+      >
+        {images.map((img, i) => (
+          <img
+            key={i}
+            src={img}
+            width={180}
+            height={180}
+            style={{ borderRadius: 12 }}
+          />
+        ))}
       </div>
     </main>
   );
