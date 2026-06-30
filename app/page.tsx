@@ -9,102 +9,75 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   async function generate() {
-    if (!prompt) return;
+    console.log("BUTTON CLICKED"); // DEBUG
 
     setLoading(true);
 
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ prompt, style }),
       });
 
       const data = await res.json();
+      console.log("API RESPONSE:", data);
+
       setImages(data.images);
     } catch (err) {
-      console.error("Error generating:", err);
+      console.error("ERROR:", err);
     }
 
     setLoading(false);
   }
 
   return (
-    <main
-      style={{
-        padding: "40px",
-        fontFamily: "Arial",
-        textAlign: "center",
-        background: "#fafafa",
-        minHeight: "100vh",
-      }}
-    >
+    <main style={{ padding: 40, textAlign: "center" }}>
       <h1>🎨 EchoMeow AI Sticker Generator</h1>
 
-      <p>Create cute AI stickers for Canva, Etsy & digital products</p>
-
-      {/* INPUT */}
       <input
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Enter prompt (e.g. cute cat eating ramen)"
-        style={{
-          width: "80%",
-          padding: "12px",
-          marginTop: "20px",
-          fontSize: "16px",
-          border: "1px solid #ccc",
-        }}
+        placeholder="Enter prompt"
+        style={{ width: "80%", padding: 12 }}
       />
 
-      {/* STYLE */}
-      <div style={{ marginTop: "15px" }}>
-        <select
-          value={style}
-          onChange={(e) => setStyle(e.target.value)}
-          style={{ width: "80%", padding: "12px" }}
-        >
-          <option>Kawaii</option>
-          <option>Cartoon</option>
-          <option>Chibi</option>
-          <option>Watercolor</option>
-          <option>Minimal</option>
-        </select>
-      </div>
+      <br />
 
-      {/* BUTTON */}
+      <select
+        value={style}
+        onChange={(e) => setStyle(e.target.value)}
+        style={{ width: "80%", padding: 12, marginTop: 10 }}
+      >
+        <option>Kawaii</option>
+        <option>Cartoon</option>
+        <option>Chibi</option>
+        <option>Watercolor</option>
+      </select>
+
+      <br />
+
       <button
-        onClick={generate}
-        disabled={loading}
+        onClick={() => generate()}
         style={{
-          marginTop: "20px",
+          marginTop: 20,
           padding: "12px 25px",
           background: "black",
           color: "white",
-          border: "none",
-          cursor: "pointer",
         }}
       >
         {loading ? "Generating..." : "Generate Stickers"}
       </button>
 
-      {/* OUTPUT */}
-      <div
-        style={{
-          marginTop: "40px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          flexWrap: "wrap",
-        }}
-      >
+      <div style={{ marginTop: 40 }}>
         {images.map((img, i) => (
           <img
             key={i}
             src={img}
             width={180}
-            height={180}
-            style={{ borderRadius: 12 }}
+            style={{ margin: 10, borderRadius: 10 }}
           />
         ))}
       </div>
