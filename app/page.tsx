@@ -1,69 +1,13 @@
-"use client";
+{images.map((img, i) => (
+  <div key={i} style={{ display: "inline-block", margin: 10 }}>
+    <img src={img} width={180} />
 
-import { useState } from "react";
+    <br />
 
-export default function Home() {
-  const [prompt, setPrompt] = useState("");
-  const [style, setStyle] = useState("Cartoon");
-  const [images, setImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  async function generate() {
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt, style }),
-      });
-
-      const data = await res.json();
-
-      setImages(data.images || []);
-    } catch (err) {
-      console.error(err);
-      setImages([]);
-    }
-
-    setLoading(false);
-  }
-
-  return (
-    <main style={{ padding: 40, textAlign: "center" }}>
-      <h1>EchoMeow AI Sticker Generator</h1>
-
-      <input
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Enter prompt"
-        style={{ padding: 10, width: "300px" }}
-      />
-
-      <br /><br />
-
-      <select
-        value={style}
-        onChange={(e) => setStyle(e.target.value)}
-      >
-        <option>Cartoon</option>
-        <option>Kawaii</option>
-        <option>Chibi</option>
-      </select>
-
-      <br /><br />
-
-      <button onClick={generate}>
-        {loading ? "Generating..." : "Generate"}
+    <a href={img} download target="_blank">
+      <button style={{ marginTop: 5 }}>
+        Download
       </button>
-
-      <div style={{ marginTop: 20 }}>
-        {images.map((img, i) => (
-          <img key={i} src={img} width={150} />
-        ))}
-      </div>
-    </main>
-  );
-}
+    </a>
+  </div>
+))}
