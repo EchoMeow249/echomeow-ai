@@ -1,37 +1,28 @@
 import { NextResponse } from "next/server";
 
+const SECRET_KEY = "my-secret-123"; // change this later
+
 export async function POST(req: Request) {
   try {
-    const { prompt, style } = await req.json();
+    const auth = req.headers.get("x-secret");
 
-    const res = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-image-1",
-        prompt: `${style} style ${prompt}`,
-        size: "1024x1024",
-      }),
-    });
-
-    const data = await res.json();
-
-    console.log(data);
-
-    if (!res.ok) {
+    if (auth !== SECRET_KEY) {
       return NextResponse.json(
-        { error: data.error?.message || "OpenAI API Error" },
-        { status: res.status }
+        { error: "Unauthorized" },
+        { status: 401 }
       );
     }
 
-    return NextResponse.json(data);
-  } catch (err: any) {
-    console.error(err);
+    const { prompt, style } = await req.json();
 
+    const fullPrompt = encodeURIComponent(`${style} style ${prompt}`);
+
+    const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}`;
+
+    return NextResponse.json({
+      images: [imageUrl],
+    });
+  } catch (err: any) {
     return NextResponse.json(
       { error: err.message },
       { status: 500 }
