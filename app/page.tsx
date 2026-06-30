@@ -9,8 +9,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   async function generate() {
-    console.log("BUTTON CLICKED"); // DEBUG
-
     setLoading(true);
 
     try {
@@ -23,25 +21,33 @@ export default function Home() {
       });
 
       const data = await res.json();
-      console.log("API RESPONSE:", data);
 
-      setImages(data.images);
+      console.log("API RESULT:", data);
+
+      if (data?.images && Array.isArray(data.images)) {
+        setImages(data.images);
+      } else {
+        setImages([]);
+      }
     } catch (err) {
       console.error("ERROR:", err);
+      setImages([]);
     }
 
     setLoading(false);
   }
 
   return (
-    <main style={{ padding: 40, textAlign: "center" }}>
+    <main style={{ padding: 40, textAlign: "center", fontFamily: "Arial" }}>
       <h1>🎨 EchoMeow AI Sticker Generator</h1>
+
+      <p>Create cute AI stickers for Canva, Etsy & digital products</p>
 
       <input
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Enter prompt"
-        style={{ width: "80%", padding: 12 }}
+        placeholder="Enter prompt (e.g. cute cat)"
+        style={{ width: "80%", padding: 12, marginTop: 20 }}
       />
 
       <br />
@@ -60,18 +66,23 @@ export default function Home() {
       <br />
 
       <button
-        onClick={() => generate()}
+        onClick={generate}
         style={{
           marginTop: 20,
-          padding: "12px 25px",
+          padding: "12px 20px",
           background: "black",
           color: "white",
+          cursor: "pointer",
         }}
       >
         {loading ? "Generating..." : "Generate Stickers"}
       </button>
 
       <div style={{ marginTop: 40 }}>
+        {images.length === 0 && !loading && (
+          <p>No images yet</p>
+        )}
+
         {images.map((img, i) => (
           <img
             key={i}
