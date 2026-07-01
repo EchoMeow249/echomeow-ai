@@ -7,7 +7,6 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    // Check if API key is set
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
         { error: "Missing OPENAI_API_KEY environment variable" },
@@ -17,15 +16,13 @@ export async function POST(req: Request) {
 
     const { prompt, style } = await req.json();
 
-    // Validate inputs
-    if (!prompt || !style) {
+    if (!prompt) {
       return NextResponse.json(
-        { error: "Prompt and style are required" },
+        { error: "Prompt is required" },
         { status: 400 }
       );
     }
 
-    // Call OpenAI Images API
     const response = await client.images.generate({
       model: "gpt-image-1",
       prompt: `${prompt}, ${style}, kawaii cartoon cat sticker, pastel colors, bold outline, transparent background, extras like sparkles and hearts`,
@@ -33,13 +30,7 @@ export async function POST(req: Request) {
       n: 20, // generate 20 stickers
     });
 
-    const urls = response.data.map((img: any) => img.url);
-    return NextResponse.json({ urls });
+    const images = response.data.map((img: any) => img.url);
+    return NextResponse.json({ images });
   } catch (error: any) {
-    console.error("Image generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate images" },
-      { status: 500 }
-    );
-  }
-}
+    console.error("Image generation
