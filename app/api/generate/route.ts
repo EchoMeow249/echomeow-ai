@@ -27,10 +27,16 @@ export async function POST(req: Request) {
       model: "gpt-image-1",
       prompt: `${prompt}, ${style}, kawaii cartoon cat sticker, pastel colors, bold outline, transparent background, extras like sparkles and hearts`,
       size: "512x512",
-      n: 20, // generate 20 stickers
+      n: 20,
     });
 
     const images = response.data.map((img: any) => img.url);
     return NextResponse.json({ images });
   } catch (error: any) {
-    console.error("Image generation
+    console.error("Image generation error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate images" },
+      { status: 500 }
+    );
+  }
+}
