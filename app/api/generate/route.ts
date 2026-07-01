@@ -31,3 +31,6 @@ export async function POST(req: Request) {
       });
 
       images = response.data.map((img: any
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
