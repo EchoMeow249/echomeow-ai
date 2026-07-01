@@ -4,22 +4,18 @@ import { useState } from "react";
 
 export default function Page() {
   const [mode, setMode] = useState("sticker");
-
   const [subject, setSubject] = useState("");
   const [style, setStyle] = useState("Cartoon");
   const [character, setCharacter] = useState("Cartoon");
   const [aesthetic, setAesthetic] = useState("cute");
   const [extras, setExtras] = useState("");
-
   const [ageGroup, setAgeGroup] = useState("all ages");
   const [packSize, setPackSize] = useState(20);
 
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [file, setFile] = useState<File | null>(null);
 
-  // Convert image to base64 (safe for API)
   function fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -33,7 +29,6 @@ export default function Page() {
     setLoading(true);
 
     let referenceImage = "";
-
     if (file) {
       referenceImage = await fileToBase64(file);
     }
@@ -106,17 +101,11 @@ Reference image: ${referenceImage}
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-          style: "sticker",
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, style }),
       });
 
       const data = await res.json();
-
       setImages(data.images || []);
     } catch (err) {
       console.error(err);
@@ -207,7 +196,6 @@ Reference image: ${referenceImage}
             <option value={20}>20 stickers</option>
             <option value={50}>50 stickers</option>
           </select>
-
           <br /><br />
         </>
       )}
@@ -232,7 +220,7 @@ Reference image: ${referenceImage}
           <div key={i} style={{ marginBottom: 10 }}>
             <img src={img} width={180} />
             <br />
-            <a href={img} target="_blank">
+            <a href={img} target="_blank" rel="noopener noreferrer">
               Download
             </a>
           </div>
