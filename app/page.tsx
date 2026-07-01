@@ -119,7 +119,6 @@ Reference image: ${referenceImage}
     <main style={{ padding: 30, fontFamily: "Arial", textAlign: "center" }}>
       <h1>🎨 EchoMeow AI SaaS Tool</h1>
 
-      {/* MODE */}
       <select value={mode} onChange={(e) => setMode(e.target.value)}>
         <option value="sticker">Sticker</option>
         <option value="pack">Sticker Pack</option>
@@ -128,7 +127,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* SUBJECT */}
       <input
         placeholder="Subject (e.g. cute cat)"
         value={subject}
@@ -137,7 +135,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* IMAGE UPLOAD */}
       <input
         type="file"
         accept="image/*"
@@ -146,7 +143,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* STYLE */}
       <select value={style} onChange={(e) => setStyle(e.target.value)}>
         <option>Cartoon</option>
         <option>Kawaii</option>
@@ -156,7 +152,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* CHARACTER */}
       <select value={character} onChange={(e) => setCharacter(e.target.value)}>
         <option>Cartoon</option>
         <option>Anime</option>
@@ -165,7 +160,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* AESTHETIC */}
       <select value={aesthetic} onChange={(e) => setAesthetic(e.target.value)}>
         <option>cute</option>
         <option>kawaii</option>
@@ -175,7 +169,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* AGE GROUP */}
       <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)}>
         <option>kids</option>
         <option>teenagers</option>
@@ -185,7 +178,6 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* PACK SIZE */}
       {mode === "pack" && (
         <>
           <select
@@ -200,7 +192,6 @@ Reference image: ${referenceImage}
         </>
       )}
 
-      {/* EXTRAS */}
       <input
         placeholder="Extras (sparkles, hearts, etc)"
         value={extras}
@@ -209,23 +200,5 @@ Reference image: ${referenceImage}
 
       <br /><br />
 
-      {/* BUTTON */}
       <button onClick={generate}>
-        {loading ? "Generating..." : "Generate"}
-      </button>
-
-      {/* OUTPUT */}
-      <div style={{ marginTop: 20 }}>
-        {images.map((img, i) => (
-          <div key={i} style={{ marginBottom: 10 }}>
-            <img src={img} width={180} />
-            <br />
-            <a href={img} target="_blank" rel="noopener noreferrer">
-              Download
-            </a>
-          </div>
-        ))}
-      </div>
-    </main>
-  );
-}
+        {loading
