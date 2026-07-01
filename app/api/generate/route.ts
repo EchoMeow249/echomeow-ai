@@ -1,20 +1,20 @@
+import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export async function POST(req: Request) {
-  try {
-    const { prompt, style } = await req.json();
+  const { prompt, style } = await req.json();
 
-    const fullPrompt = encodeURIComponent(`${style} sticker, cute, clean outline, white background, ${prompt}`);
+  const response = await client.images.generate({
+    model: "gpt-image-1",
+    prompt: `${prompt}, ${style}, kawaii cartoon cat sticker, pastel colors, bold outline, transparent background, extras like sparkles and hearts`,
+    size: "512x512",
+    n: 20, // generate 20 stickers
+  });
 
-    const images = Array.from({ length: 6 }).map(() =>
-      `https://image.pollinations.ai/prompt/${fullPrompt}`
-    );
-
-    return NextResponse.json({ images });
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message },
-      { status: 500 }
-    );
-  }
+  const urls = response.data.map((img: any) => img.url);
+  return NextResponse.json({ urls });
 }
